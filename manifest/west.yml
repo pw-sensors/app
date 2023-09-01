@@ -6,7 +6,7 @@ manifest:
     - name: zephyr
       url-base: https://github.com/zephyrproject-rtos
     - name: pigweed
-      url-base: https://pigweed.googlesource.com/pigweed
+      url-base: git@github.com:pw-sensors/pigweed.git
 
   projects:
     - name: zephyr
