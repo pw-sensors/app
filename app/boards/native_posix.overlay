@@ -1,0 +1,15 @@
+// Copyright (c) 2023 Google LLC
+// SPDX-License-Identifier: Apache-2.0
+
+/ {
+    aliases {
+        imu = &bmi160;
+    };
+};
+
+&i2c0 {
+    bmi160: bmi160@68 {
+        compatible = "bosch,bmi160";
+        reg = <0x68>;
+    };
+};

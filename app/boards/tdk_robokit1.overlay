@@ -1,0 +1,8 @@
+// Copyright (c) 2023 Google LLC
+// SPDX-License-Identifier: Apache-2.0
+
+/ {
+    aliases {
+        imu = &icm42688;
+    };
+};
