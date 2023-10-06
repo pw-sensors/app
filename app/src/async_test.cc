@@ -61,13 +61,12 @@ pw::Status RunAsyncTest(pw::sensor::SensorContext &ctx,
     rtio_cqe_release(ctx.native_type().r_, cqe);
 
     {
-      auto result = ctx.native_type().allocator_->Claim(buf, buf_len);
+      auto result = pw::sensor::Block(
+          ctx.native_type().allocator_,
+          pw::ByteSpan((std::byte *)buf, buf_len));
 
-      PW_ASSERT(result.ok());
-
-      PW_ASSERT(static_cast<void *>(result.value().data()) ==
-                static_cast<void *>(buf));
-      PW_ASSERT(result.value().size() == buf_len);
+      PW_ASSERT(static_cast<void *>(result.data()) == static_cast<void *>(buf));
+      PW_ASSERT(result.size() == buf_len);
     }
 
     PW_ASSERT(sys_mem_blocks_is_region_free(

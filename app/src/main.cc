@@ -22,10 +22,8 @@
 
 #define IMU DT_ALIAS(imu)
 
-RTIO_DEFINE(rtio, 4, 4);
-
-Z_RTIO_BLOCK_POOL_DEFINE(rtio_block_pool, 64, 64, 4);
-pw::allocator::zephyr::ZephyrAllocator allocator(&rtio_block_pool, 4);
+RTIO_DEFINE_WITH_MEMPOOL(rtio, 4, 4, 64, 64, 4);
+pw::allocator::zephyr::ZephyrAllocator allocator(rtio.block_pool);
 
 pw::sensor::SensorContext sensorContext({
     .r_ = &rtio,
