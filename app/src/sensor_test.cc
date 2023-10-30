@@ -24,7 +24,8 @@
 pw::Status test::sensor::Run(pw::sensor::Sensor &sensor,
                              pw::sensor::SensorContext &ctx,
                              pw::async::BasicDispatcher &dispatcher) {
-  pw::sensor::SensorType read_list[] = {pw::sensor::SensorType::ACCELEROMETER};
+  pw::sensor::SensorType read_list[] = {
+      pw::sensor::SensorType::SENSOR_TYPE_ACCELEROMETER};
   auto future = sensor.Read(ctx, {read_list});
   pw::async::Task task([&future](pw::async::Context &task_context,
                                  pw::Status status) {
@@ -33,29 +34,32 @@ pw::Status test::sensor::Run(pw::sensor::Sensor &sensor,
       return;
     }
     PW_LOG_INFO("Creating waker with Task@%p", task_context.task);
-    pw::async::Waker waker(*task_context.dispatcher, *task_context.task);
+    pw::async::experimental::Waker waker(*task_context.dispatcher,
+                                         *task_context.task);
     auto result = future.Poll(waker);
     if (result.IsReady()) {
       PW_LOG_INFO("Got result @ %p with length=%u",
                   result.value().value().data(), result.value().value().size());
       auto decoder = future.sensor()->GetDecoder();
-      pw::sensor::DecoderContext decoder_context(result.value().value().as_byte_span());
+      auto byte_span = result.value().value().as_byte_span();
+      pw::sensor::DecoderContext decoder_context(byte_span);
 
-      auto size_info =
-          decoder->GetSizeInfo(decoder_context, pw::sensor::ACCELEROMETER);
+      auto size_info = decoder->GetSizeInfo(
+          byte_span, pw::sensor::SENSOR_TYPE_ACCELEROMETER);
       PW_ASSERT_OK(size_info.status());
       PW_LOG_INFO("Decoding an ACCELEROMETER requires %zu bytes for the first "
                   "frame and %zu bytes for every additional frame",
                   size_info.value().base_size, size_info.value().frame_size);
 
-      auto frame_count =
-          decoder->GetFrameCount(decoder_context, pw::sensor::ACCELEROMETER, 0);
+      auto frame_count = decoder->GetFrameCount(
+          byte_span, pw::sensor::SENSOR_TYPE_ACCELEROMETER, 0);
       PW_ASSERT_OK(frame_count.status());
       PW_LOG_INFO("Found %zu ACCELEROMETER frames", frame_count.value());
 
       std::byte out[64];
       auto decode_result = decoder->Decode(
-          decoder_context, pw::sensor::ACCELEROMETER, 0, 1, pw::ByteSpan(out));
+          decoder_context, pw::sensor::SENSOR_TYPE_ACCELEROMETER, 0, 1,
+          pw::ByteSpan(out));
       PW_ASSERT_OK(decode_result.status());
       PW_ASSERT(decode_result.value() == 1);
 

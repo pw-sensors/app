@@ -61,7 +61,7 @@ pw::Status RunAsyncTest(pw::sensor::SensorContext &ctx,
     rtio_cqe_release(ctx.native_type().r_, cqe);
 
     {
-      auto result = pw::sensor::Block(
+      auto result = pw::allocator::experimental::Block(
           ctx.native_type().allocator_,
           pw::ByteSpan((std::byte *)buf, buf_len));
 

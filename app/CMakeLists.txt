@@ -40,7 +40,6 @@ target_include_directories(app PRIVATE include)
 target_link_libraries(app PRIVATE
     pw_sensor
     pw_sensor_zephyr.backend
-    pw_allocator_zephyr.sys_mem_block
     pw_async_basic.task_backend
     pw_async_basic.dispatcher_backend
     pw_thread.thread

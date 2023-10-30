@@ -51,21 +51,20 @@ static void read_callback(int result, uint8_t *buf, uint32_t buf_len,
 }
 
 static void configure_sensor(pw::sensor::Sensor &imu) {
-  auto configuration_result = imu.GetConfiguration();
+  auto configuration = imu.GetConfiguration();
 
-  if (!configuration_result.ok()) {
+  if (configuration == nullptr) {
     PW_LOG_ERROR("Failed to get configuration for accelerometer");
     return;
   }
 
-  if (configuration_result.value().HasSampleRate(
-          pw::sensor::SensorType::ACCELEROMETER)) {
-    configuration_result.value().SetSampleRate(
-        pw::sensor::SensorType::ACCELEROMETER, 100.0f);
+  auto sample_rate = configuration->HasAttribute(pw::sensor::SENSOR_ATTRIBUTE_TYPE_SAMPLE_RATE, pw::sensor::SENSOR_TYPE_ACCELEROMETER);
+  if (sample_rate.ok()) {
+    *sample_rate.value() = 100.0f;
   } else {
     PW_LOG_INFO("Sensor doesn't support sample rate attribute");
   }
-  PW_ASSERT(imu.SetConfiguration(configuration_result.value()).ok());
+  PW_ASSERT(imu.CommitConfigurationChanges().ok());
 }
 
 int main() {
