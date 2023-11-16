@@ -8,11 +8,11 @@
 
 #include "pw_allocator_zephyr/sys_mem_block_allocator.h"
 #include "pw_assert/assert.h"
+#include "pw_async_basic/dispatcher.h"
 #include "pw_log/log.h"
 #include "pw_sensor/sensor.h"
 #include "pw_sensor_zephyr/sensor.h"
 #include "pw_status/try.h"
-#include "pw_async_basic/dispatcher.h"
 #include "pw_thread/thread.h"
 #include "pw_thread_zephyr/options.h"
 
@@ -46,7 +46,8 @@ static void read_callback(int result, uint8_t *buf, uint32_t buf_len,
   PW_ASSERT(sensor_get_decoder(sensor, &decoder) == 0);
 
   uint16_t frame_count;
-  PW_ASSERT(decoder->get_frame_count(buf, SENSOR_CHAN_ACCEL_XYZ, 0, &frame_count) == 0);
+  PW_ASSERT(decoder->get_frame_count(buf, SENSOR_CHAN_ACCEL_XYZ, 0,
+                                     &frame_count) == 0);
   PW_LOG_INFO("Frame count = %u", frame_count);
 }
 
@@ -58,7 +59,9 @@ static void configure_sensor(pw::sensor::Sensor &imu) {
     return;
   }
 
-  auto sample_rate = configuration->HasAttribute(pw::sensor::SENSOR_ATTRIBUTE_TYPE_SAMPLE_RATE, pw::sensor::SENSOR_TYPE_ACCELEROMETER);
+  auto sample_rate =
+      configuration->HasAttribute(pw::sensor::attribute::kSampleRate,
+                                  pw::sensor::type::kSensorTypeAccelerometer);
   if (sample_rate.ok()) {
     *sample_rate.value() = 100.0f;
   } else {

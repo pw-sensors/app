@@ -24,8 +24,8 @@
 pw::Status test::sensor::Run(pw::sensor::Sensor &sensor,
                              pw::sensor::SensorContext &ctx,
                              pw::async::BasicDispatcher &dispatcher) {
-  pw::sensor::SensorType read_list[] = {
-      pw::sensor::SensorType::SENSOR_TYPE_ACCELEROMETER};
+  uint32_t read_list[] = {
+      pw::sensor::type::kSensorTypeAccelerometer};
   auto future = sensor.Read(ctx, {read_list});
   pw::async::Task task([&future](pw::async::Context &task_context,
                                  pw::Status status) {
@@ -45,20 +45,20 @@ pw::Status test::sensor::Run(pw::sensor::Sensor &sensor,
       pw::sensor::DecoderContext decoder_context(byte_span);
 
       auto size_info = decoder->GetSizeInfo(
-          byte_span, pw::sensor::SENSOR_TYPE_ACCELEROMETER);
+          byte_span, pw::sensor::type::kSensorTypeAccelerometer);
       PW_ASSERT_OK(size_info.status());
       PW_LOG_INFO("Decoding an ACCELEROMETER requires %zu bytes for the first "
                   "frame and %zu bytes for every additional frame",
                   size_info.value().base_size, size_info.value().frame_size);
 
       auto frame_count = decoder->GetFrameCount(
-          byte_span, pw::sensor::SENSOR_TYPE_ACCELEROMETER, 0);
+          byte_span, pw::sensor::type::kSensorTypeAccelerometer, 0);
       PW_ASSERT_OK(frame_count.status());
       PW_LOG_INFO("Found %zu ACCELEROMETER frames", frame_count.value());
 
       std::byte out[64];
       auto decode_result = decoder->Decode(
-          decoder_context, pw::sensor::SENSOR_TYPE_ACCELEROMETER, 0, 1,
+          decoder_context, pw::sensor::type::kSensorTypeAccelerometer, 0, 1,
           pw::ByteSpan(out));
       PW_ASSERT_OK(decode_result.status());
       PW_ASSERT(decode_result.value() == 1);
